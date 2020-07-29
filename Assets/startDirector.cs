@@ -9,6 +9,7 @@ public class startDirector : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+
             SceneManager.LoadScene("mainScenes");
         }
     }

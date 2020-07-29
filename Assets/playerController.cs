@@ -9,8 +9,10 @@ public class playerController : MonoBehaviour
     Animator anima;
 
     public float jumpForce;
-    public float walkForce;
+    public float walkSpeed;
     public float maxSpeed;
+
+    public string scence;
 
     private void Start()
     {
@@ -20,34 +22,64 @@ public class playerController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && this.rigid2D.velocity.y == 0)
-        {
-            this.rigid2D.AddForce(transform.up * this.jumpForce);
-        }
 
-        int key = 0;
-
-        if (Input.GetKey(KeyCode.LeftArrow)) key = -1;
-        if (Input.GetKey(KeyCode.RightArrow)) key = 1;
+        jump();
+        walk();
+        flip();
 
         float speedx = Mathf.Abs(this.rigid2D.velocity.x);
-
-        if(speedx < this.maxSpeed)
-        {
-            this.rigid2D.AddForce(transform.right * key * this.walkForce);
-        }
-
-        if(key != 0)
-        {
-            transform.localScale = new Vector3(key, 1, 1);
-        }
-
         this.anima.speed = speedx / 2.0f;
+
+        
     }
+
+    
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         Debug.Log("終點");
-        SceneManager.LoadScene("clearScenes");
+        SceneManager.LoadScene(scence);
+    }
+
+    private void walk()
+    {
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            rigid2D.velocity = new Vector2(-walkSpeed, rigid2D.velocity.y);
+        } 
+        else if (Input.GetKey(KeyCode.RightArrow))
+        {
+            rigid2D.velocity = new Vector2(walkSpeed, rigid2D.velocity.y);
+        }
+        else
+        {
+            rigid2D.velocity = new Vector2(0, rigid2D.velocity.y);
+        }
+    }
+
+    private void flip()
+    {
+        bool playerHasXAxisSpeed = Mathf.Abs(rigid2D.velocity.x) > Mathf.Epsilon;
+        if (playerHasXAxisSpeed)
+        {
+            if (rigid2D.velocity.x > 0.1f)
+            {
+                transform.localRotation = Quaternion.Euler(0, 0, 0);
+            }
+
+            if (rigid2D.velocity.x < -0.1f)
+            {
+                transform.localRotation = Quaternion.Euler(0, 180, 0);
+            }
+        }
+    }
+
+    private void jump()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && this.rigid2D.velocity.y == 0)
+        {
+            Vector2 jumpVec = new Vector2(0.0f, jumpForce);
+            rigid2D.velocity = Vector2.up * jumpVec;
+        }
     }
 }
